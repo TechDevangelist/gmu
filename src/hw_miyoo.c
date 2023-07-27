@@ -21,7 +21,15 @@
 static int selected_mixer = -1;
 static int display_on_value = 100;
 
-void hw_display_off(void)
+static void set_display_state(const char *state) { //added because the image continues to be generated even with the screen off
+    FILE *f;
+    if ((f = fopen("/proc/mi_modules/fb/mi_fb0", "w"))) {
+        fprintf(f, "GUI_SHOW %s\n", state);
+        fclose(f);
+    }
+}
+
+void hw_display_off(void) 
 {
 	char  tmp[5];
 	FILE *f;
@@ -37,6 +45,7 @@ void hw_display_off(void)
 			fclose(f);
 		}
 	}
+	set_display_state("off");
 }
 
 void hw_display_on(void)
@@ -50,6 +59,7 @@ void hw_display_on(void)
 			fclose(f);
 		}
 	}
+	set_display_state("on");
 }
 
 int hw_open_mixer(int mixer_channel)
